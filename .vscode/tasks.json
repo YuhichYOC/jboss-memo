@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Maven: Build and Deploy",
+            "type": "shell",
+            "command": "mvn clean package && cp test01-ear/target/*.ear /home/y/usr/bin/wildfly/wildfly-38.0.0.Final/standalone/deployments/",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "WildFly: Start Debug Mode",
+            "type": "shell",
+            "command": "/home/y/usr/bin/wildfly/wildfly-38.0.0.Final/bin/standalone.sh --debug",
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^.*$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Listening for transport.*$",
+                    "endsPattern": "^.*started in.*$"
+                }
+            }
+        }
+    ]
+}
