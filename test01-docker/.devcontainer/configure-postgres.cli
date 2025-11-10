@@ -1,0 +1,23 @@
+embed-server --std-out=echo --server-config=standalone.xml
+
+module add --name=org.postgresql \
+    --resources=${WILDFLY_HOME}/standalone/deployments/postgresql-${POSTGRES_VERSION}.jar \
+    --dependencies=javax.api,javax.transaction.api
+
+/subsystem=datasources/jdbc-driver=postgresql:add( \
+    driver-name=postgresql, \
+    driver-module-name=org.postgresql, \
+    driver-class-name=org.postgresql.Driver)
+
+data-source add \
+    --name=${DS_NAME} \
+    --jndi-name=${DS_JNDI} \
+    --driver-name=postgresql \
+    --connection-url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME} \
+    --user-name=${DB_USER} \
+    --password=${DB_PASS} \
+    --use-ccm=true \
+    --max-pool-size=20 \
+    --blocking-timeout-wait-millis=5000
+
+stop-embedded-server

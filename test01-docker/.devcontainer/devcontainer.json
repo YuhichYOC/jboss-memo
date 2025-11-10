@@ -1,0 +1,14 @@
+{
+  "name": "WildFly Development Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "forwardPorts": [8080, 8787, 9990],
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind"
+  ],
+  "workspaceFolder": "/workspace",
+  "overrideCommand": false,
+  "remoteUser": "vscode"
+}
