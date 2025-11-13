@@ -1,0 +1,2 @@
+rootProject.name = 'test01'
+include 'test01-ejb', 'test01-web', 'test01-ear'

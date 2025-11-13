@@ -1,0 +1,85 @@
+plugins {
+    id 'ear'
+}
+
+dependencies {
+    deploy project(':test01-ejb')
+    deploy project(':test01-web')
+}
+
+ear {
+    archiveBaseName.set('test01')
+}
+
+task deploy {
+    description = 'Deploy EAR to WildFly using jboss-cli.sh'
+    dependsOn ear
+    doLast {
+        def earFile = ear.outputs.files.singleFile
+        def archiveName = ear.archiveBaseName.get()
+        def hostname = System.getenv('WILDFLY_HOSTNAME') ?: '127.0.0.1'
+        def port = System.getenv('WILDFLY_PORT') ?: '9990'
+        def username = System.getenv('WILDFLY_ADMIN') ?: 'admin'
+        def password = System.getenv('WILDFLY_ADMIN_PASS') ?: 'password'
+
+        def cliScript = """
+deploy --name=${archiveName} "${earFile.absolutePath}"
+quit
+""".stripIndent()
+
+        def tmpDir = new File(buildDir, 'cli')
+        tmpDir.mkdirs()
+        def cliFile = new File(tmpDir, 'deploy.cli')
+        cliFile.text = cliScript
+
+        logger.info("Deploying ${archiveName} to WildFly at ${hostname}:${port}")
+
+        def wildflyHome = System.getenv('WILDFLY_HOME') ?: '/opt/wildfly'
+        def cliExec = new File(wildflyHome, 'bin/jboss-cli.sh').absolutePath
+
+        exec {
+            environment 'JAVA_HOME', System.getenv('JAVA_HOME') ?: '/usr/lib/jvm/java-21-openjdk-amd64'
+            commandLine cliExec,
+                        '--connect',
+                        '--controller=' + "${hostname}:${port}",
+                        '--user=' + username,
+                        '--password=' + password,
+                        '--file=' + cliFile.absolutePath
+        }
+    }
+}
+
+task undeploy {
+    description = 'Undeploy EAR from WildFly'
+    doLast {
+        def earFile = ear.outputs.files.singleFile
+        def archiveName = ear.archiveBaseName.get()
+        def hostname = System.getenv('WILDFLY_HOSTNAME') ?: '127.0.0.1'
+        def port = System.getenv('WILDFLY_PORT') ?: '9990'
+        def username = System.getenv('WILDFLY_ADMIN') ?: 'admin'
+        def password = System.getenv('WILDFLY_ADMIN_PASS') ?: 'password'
+
+        def cliScript = """
+undeploy ${archiveName}
+quit
+""".stripIndent()
+
+        def tmpDir = new File(buildDir, 'cli')
+        tmpDir.mkdirs()
+        def cliFile = new File(tmpDir, 'undeploy.cli')
+        cliFile.text = cliScript
+
+        def wildflyHome = System.getenv('WILDFLY_HOME') ?: '/opt/wildfly'
+        def cliExec = new File(wildflyHome, 'bin/jboss-cli.sh').absolutePath
+
+        exec {
+            environment 'JAVA_HOME', System.getenv('JAVA_HOME') ?: '/usr/lib/jvm/java-21-openjdk-amd64'
+            commandLine cliExec,
+                        '--connect',
+                        '--controller=' + "${hostname}:${port}",
+                        '--user=' + username,
+                        '--password=' + password,
+                        '--file=' + cliFile.absolutePath
+        }
+    }
+}

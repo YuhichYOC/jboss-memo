@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['ejbModule']
+        }
+        resources {
+            srcDirs = ['ejbModule']
+            includes = ['**/*.xml', '**/*.properties', '**/META-INF/**']
+        }
+    }
+}
+
+dependencies {
+    compileOnly 'jakarta.ejb:jakarta.ejb-api:4.0.1'
+    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.2.0'
+    compileOnly 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.1.0'
+}

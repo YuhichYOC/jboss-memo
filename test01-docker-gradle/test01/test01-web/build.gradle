@@ -1,0 +1,36 @@
+plugins {
+    id 'war'
+}
+
+configurations {
+    archives {
+        outgoing {
+            artifact(tasks.named('war'))
+        }
+    }
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+war {
+    archiveBaseName.set('test01-web')
+    webAppDirName = 'src/main/webapp'
+}
+
+dependencies {
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+    compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:4.0.0'
+    compileOnly 'jakarta.inject:jakarta.inject-api:2.0.1'
+
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
+
+    implementation project(':test01-ejb')
+}
